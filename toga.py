@@ -1281,7 +1281,7 @@ class Toga:
         """Get git hash and current branch if possible."""
         cmd_hash = "git rev-parse HEAD"
         cmd_branch = "git rev-parse --abbrev-ref HEAD"
-"""         try:
+        """ try:
             git_hash = subprocess.check_output(
                 cmd_hash, shell=True, cwd=self.toga_exe_path
             ).decode("utf-8").strip()
@@ -1289,8 +1289,8 @@ class Toga:
                 cmd_branch, shell=True, cwd=self.toga_exe_path
             ).decode("utf-8").strip()
         except subprocess.CalledProcessError: """
-            git_hash = "unknown"
-            git_branch = "unknown"
+        git_hash = "unknown"
+        git_branch = "unknown"
         version = f"Version {__version__}\nCommit: {git_hash}\nBranch: {git_branch}\n"
         to_log(version)
         return version
