@@ -1,0 +1,124 @@
+// SLURM config file for CESAR jobs
+// since CESAR have various memory requirements, this
+// is just a template, TOGA will fill this itself
+// depending on the CESAR job bucket
+// process.executor = 'slurm'
+// process.time = '24h'  // mostly 8h is enough, just for robustness
+// process.memory = "${_MEMORY_}G"  // to be replaced
+// process.cpus = 1  // CESAR utilizes a single core only
+// executor.queueSize = 1000  // nextflow default is 100 - too few
+
+singularity.enabled = true
+
+// Extract the name of the cluster to tune the parameters below
+def clustername = "farm22"
+try {
+    clustername = ['/bin/bash', '-c', 'lsid | awk \'$0 ~ /^My cluster name is/ {print $5}\''].execute().text.trim()
+} catch (java.io.IOException e) {
+    System.err.println("WARNING: Could not run lsid to determine current cluster, defaulting to farm")
+}
+
+// Profile details
+params {
+    config_profile_description = "The Wellcome Sanger Institute HPC cluster (${clustername}) profile"
+    config_profile_contact = 'Priyanka Surana (@priyanka-surana)'
+    config_profile_url = 'https://www.sanger.ac.uk'
+}
+
+
+// Queue and LSF submission options
+process {
+
+    errorStrategy = { task.exitStatus in ((130..145) + 104) ? 'retry' : 'finish' }
+    maxRetries    = 5
+    maxErrors     = '-1'
+
+    cpus   = 1
+    //memory = { check_max( 2.GB * task.attempt, 'memory' ) }
+    memory = "${_MEMORY_}G"
+    //time   = { check_max( 30.min * task.attempt, 'time' ) }
+    time = '24h' 
+    executor = 'lsf'
+
+    // Currently a single set of rules for all clusters, but we could use $clustername to apply
+    // different rules to different clusters.
+    queue = {
+        if ( task.time >= 15.day ) {
+            if ( task.memory > 680.GB ) {
+                error "There is no queue for jobs that need >680 GB and >15 days"
+            } else {
+                "basement"
+            }
+        } else if ( task.memory > 720.GB ) {
+            "teramem"
+        } else if ( task.memory > 350.GB ) {
+            "hugemem"
+        } else if ( task.time > 7.day ) {
+            "basement"
+        } else if ( task.time > 2.day ) {
+            "week"
+        } else if ( task.time > 12.hour ) {
+            "long"
+        } else if ( task.time > 1.min ) {
+            "normal"
+        } else {
+            "small"
+        }
+    }
+
+    withLabel: gpu {
+        clusterOptions = { "-M "+task.memory.toMega()+" -R 'select[mem>="+task.memory.toMega()+"] rusage[mem="+task.memory.toMega()+"] span[ptile=1]' -gpu 'num=1:j_exclusive=yes'" }
+        queue = { task.time > 12.h ? 'gpu-huge' : task.time > 48.h ? 'gpu-basement' : 'gpu-normal' }
+        containerOptions = {
+            workflow.containerEngine == "singularity" ? '--containall --cleanenv --nv':
+            ( workflow.containerEngine == "docker" ? '--gpus all': null )
+        }
+    }
+}
+
+
+// Executor details
+executor {
+    name = 'lsf'
+    perJobMemLimit = true
+    poolSize = 4
+    submitRateLimit = '5 sec'
+    killBatchSize = 50
+    queueSize = 1000
+}
+
+
+// Max resources
+if (clustername.startsWith("tol")) {
+    // tol cluster
+    params.max_memory = 1.4.TB
+    params.max_cpus = 64
+    params.max_time = 89280.min // 62 days
+    // As opposite to the farm settings below, we don't mount any filesystem by default.
+    // Pipelines that need to see certain filesystems have to set singularity.runOptions themselves
+
+    process {
+        resourceLimits = [
+            memory: 1.4.TB,
+            cpus: 64,
+            time: 89280.min
+        ]
+    }
+
+} else {
+    // defaults for the main farm
+    params.max_memory = 2.9.TB
+    params.max_cpus = 256
+    params.max_time = 43200.min // 30 days
+
+    process {
+        resourceLimits = [
+            memory: 2.9.TB,
+            cpus: 256,
+            time: 43200.min
+        ]
+    }
+
+    // Mount all filesystems by default
+    singularity.runOptions = '--bind /lustre --bind /nfs --bind /data --bind /software'
+}
