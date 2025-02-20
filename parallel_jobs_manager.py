@@ -123,7 +123,7 @@ class NextflowStrategy(ParallelizationStrategy):
             original_config_path = os.path.abspath(os.path.join(self.nextflow_config_dir,
                                                        self.CHAIN_CONFIG_TEMPLATE_FILENAME))
             config_filename = "extract_chain_features_queue.nf"
-            config_path = os.path.join(self.nextflow_config_dir, config_filename)
+            config_path = os.path.abspath(os.path.join(self.nextflow_config_dir, config_filename))
             with open(original_config_path) as in_, open(config_path, "w") as out_:
                 out_.write(in_.read())
         elif self.label.startswith(self.CESAR_JOBS_PREFIX):
