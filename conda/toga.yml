@@ -19,17 +19,3 @@ dependencies:
 # This file is created based on this repository:
 # https://github.com/hillerlab/TOGA
 # The requirements.txt file was used to create the pip dependencies.
-
-# The location of checkout on farm here:
-# /software/treeoflife/bin/TOGA
-# Where:
-# We should run ./configure.sh in additional to conda env creation.
-# To run the test suite, we should run ./run_test.sh micro
-
-# The location should be added to the PATH when conda env is activated.
-# /software/treeoflife/bin/TOGA/
-
-# Only slum cluster config templated provided in the repository originaly.
-# We have created one to run on farm using LSF:
-# /software/treeoflife/bin/TOGA/nextflow_config_files_lsf
-# please make a copy for your run and modify them as needed.
