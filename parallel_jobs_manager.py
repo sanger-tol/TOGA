@@ -116,6 +116,7 @@ class NextflowStrategy(ParallelizationStrategy):
     def __create_config_file(self):
         """Create config file and return path to it if needed"""
         config_path = None
+        toga_temp_dir = self.manager_data["temp_wd"]
         if self.use_local_executor:
             # for local executor, no config file is needed
             return config_path
@@ -123,7 +124,7 @@ class NextflowStrategy(ParallelizationStrategy):
             original_config_path = os.path.abspath(os.path.join(self.nextflow_config_dir,
                                                        self.CHAIN_CONFIG_TEMPLATE_FILENAME))
             config_filename = "extract_chain_features_queue.nf"
-            config_path = os.path.abspath(os.path.join(self.nextflow_config_dir, config_filename))
+            config_path = os.path.abspath(os.path.join(toga_temp_dir, config_filename))
             with open(original_config_path) as in_, open(config_path, "w") as out_:
                 out_.write(in_.read())
         elif self.label.startswith(self.CESAR_JOBS_PREFIX):
@@ -135,7 +136,6 @@ class NextflowStrategy(ParallelizationStrategy):
             config_string = cesar_config_template.replace(self.CESAR_CONFIG_MEM_TEMPLATE,
                                                           f"{self.memory_limit}")
             config_filename = f"cesar_config_{self.memory_limit}_queue.nf"
-            toga_temp_dir = self.manager_data["temp_wd"]
             config_path = os.path.abspath(os.path.join(toga_temp_dir, config_filename))
             with open(config_path, "w") as f:
                 f.write(config_string)
