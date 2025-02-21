@@ -22,5 +22,5 @@ then do not use --cesar_buckets parameter.
 
 ### Example command
 ```
-toga.py {YOUR_DATA_PATH}/test_input/hg38.mm10.chr11.chain {YOUR_DATA_PATH}/test_input/hg38.genCode27.chr11.bed {YOUR_DATA_PATH}/test_input/hg38.2bit {YOUR_DATA_PATH}/test_input/mm10.2bit --kt --pn test -i {YOUR_DATA_PATH}/supply/hg38.wgEncodeGencodeCompV34.isoforms.txt --nc {YOUR_DATA_PATH}/nextflow_config_files --cb 3,5 --cjn 500 --u12 {YOUR_DATA_PATH}/supply/hg38.U12sites.tsv --ms --kt --nfnd
+toga.py {YOUR_DATA_PATH}/test_input/hg38.mm10.chr11.chain {YOUR_DATA_PATH}/test_input/hg38.genCode27.chr11.bed {YOUR_DATA_PATH}/test_input/hg38.2bit {YOUR_DATA_PATH}/test_input/mm10.2bit --kt --pn test -i {YOUR_DATA_PATH}/supply/hg38.wgEncodeGencodeCompV34.isoforms.txt --nc /software/treeoflife/bin/TOGA/nextflow_config_files_lsf --cb 3,5 --cjn 500 --u12 {YOUR_DATA_PATH}/supply/hg38.U12sites.tsv --ms --kt --nfnd
 ```
